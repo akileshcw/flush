@@ -1,0 +1,18 @@
+version: "3"
+services:
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://user:password@db-host:5432/auth_db
+      JWT_SECRET: your_jwt_secret
+
+  patient-service:
+    build: ./patient-service
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgres://user:password@db-host:5432/patient_db
+      RABBITMQ_URL: amqp://user:password@mq-host:5672
+      JWT_SECRET: your_jwt_secret
