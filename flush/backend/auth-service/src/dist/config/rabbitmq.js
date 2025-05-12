@@ -16,7 +16,7 @@ exports.connectRabbitMQ = connectRabbitMQ;
 const amqplib_1 = __importDefault(require("amqplib"));
 function connectRabbitMQ() {
     return __awaiter(this, void 0, void 0, function* () {
-        const connection = yield amqplib_1.default.connect("amqp://localhost:5672");
+        const connection = yield amqplib_1.default.connect("amqp://guest:guest@rabbitmq:5672");
         const channel = yield connection.createChannel();
         yield channel.assertQueue("auth.events", { durable: true });
         return channel;

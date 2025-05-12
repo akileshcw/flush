@@ -17,7 +17,7 @@ async function startServer() {
   const authService = new AuthService(channel);
   const authController = new AuthController(authService);
 
-  app.use("/auth", authRoutes(authController));
+  app.use("/", authRoutes(authController));
   app.use(errorHandler);
 
   app.listen(3000, () => {

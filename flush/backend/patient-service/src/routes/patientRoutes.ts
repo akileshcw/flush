@@ -8,37 +8,37 @@ export function patientRoutes(controller: PatientController): Router {
     "/",
     authenticateToken,
     authorizeRole(["admin", "staff"]),
-    controller.createPatient.bind(controller)
+    controller.createPatient
   );
   router.get(
     "/",
     authenticateToken,
     authorizeRole(["admin", "staff", "doctor"]),
-    controller.getAllPatients.bind(controller)
+    controller.getAllPatients
   );
   router.get(
     "/:id",
     authenticateToken,
     authorizeRole(["admin", "staff", "doctor", "patient"]),
-    controller.getPatientById.bind(controller)
+    controller.getPatientById
   );
   router.get(
     "/phone/:phone",
     authenticateToken,
     authorizeRole(["admin", "staff", "doctor"]),
-    controller.getPatientByPhone.bind(controller)
+    controller.getPatientByPhone
   );
   router.put(
     "/:id",
     authenticateToken,
     authorizeRole(["admin", "staff"]),
-    controller.updatePatient.bind(controller)
+    controller.updatePatient
   );
   router.delete(
     "/:id",
     authenticateToken,
     authorizeRole(["admin"]),
-    controller.deletePatient.bind(controller)
+    controller.deletePatient
   );
   return router;
 }

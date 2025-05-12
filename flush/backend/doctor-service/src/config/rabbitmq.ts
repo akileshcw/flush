@@ -1,7 +1,7 @@
 import amqp from "amqplib";
 
 export async function connectRabbitMQ() {
-  const connection = await amqp.connect("amqp://localhost:5672");
+  const connection = await amqp.connect("amqp://guest:guest@rabbitmq:5672");
   const channel = await connection.createChannel();
   await channel.assertQueue("doctor.events", { durable: true });
   return channel;
@@ -9,7 +9,7 @@ export async function connectRabbitMQ() {
 
 async function consumeEvents() {
   const channel = await connectRabbitMQ();
-  channel.consume("auth.events", (msg) => {
+  channel.consume("doctor.events", (msg) => {
     if (msg) {
       const { event, data } = JSON.parse(msg.content.toString());
       if (event === "user.registered") {

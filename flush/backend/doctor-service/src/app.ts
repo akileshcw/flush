@@ -15,7 +15,7 @@ const startServer = async () => {
   const doctorService = new DoctorService(channel);
   const doctorController = new DoctorController(doctorService);
 
-  app.use("/doctors", doctorRoutes(doctorController));
+  app.use("/", doctorRoutes(doctorController));
   app.use(errorHandler);
 
   app.listen(3000, () => console.log("Doctor Service running on port 3000"));

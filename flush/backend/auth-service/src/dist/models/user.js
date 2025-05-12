@@ -27,7 +27,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password_hash", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)("text", { array: true }),
     __metadata("design:type", Array)
 ], User.prototype, "roles", void 0);
 exports.User = User = __decorate([

@@ -6,6 +6,7 @@ services:
       - name: auth-route
         paths:
           - /auth
+        strip_path: true
     plugins: [] # No authentication for auth service
 
   - name: patient-service
@@ -14,6 +15,7 @@ services:
       - name: patient-route
         paths:
           - /patients
+        strip_path: true
     plugins:
       - name: jwt
         config:
@@ -32,6 +34,7 @@ services:
       - name: appointment-route
         paths:
           - /appointments
+        strip_path: true
     plugins:
       - name: jwt
         config:
@@ -50,6 +53,7 @@ services:
       - name: doctor-route
         paths:
           - /doctors
+        strip_path: true
     plugins:
       - name: jwt
         config:
@@ -68,6 +72,7 @@ services:
       - name: patient-portal-route
         paths:
           - /patient-portal
+        strip_path: true
     plugins:
       - name: jwt
         config:

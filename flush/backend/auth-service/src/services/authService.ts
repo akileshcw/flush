@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { User } from "../models/user";
 import { AppDataSource } from "../config/database";
-import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import { Channel } from "amqplib";
 

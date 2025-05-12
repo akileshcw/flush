@@ -9,7 +9,11 @@ export class AppointmentController {
     this.appointmentService = appointmentService;
   }
 
-  async createAppointment(req: Request, res: Response, next: NextFunction) {
+  createAppointment = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const { patientId, doctorId, dateTime, notes } = req.body;
       const appointment = await this.appointmentService.createAppointment(
@@ -22,50 +26,68 @@ export class AppointmentController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getAppointments(req: Request, res: Response, next: NextFunction) {
+  getAppointments = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const appointments = await this.appointmentService.getAppointments();
       res.json(appointments);
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getAppointmentById(req: Request, res: Response, next: NextFunction) {
+  getAppointmentById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const appointment = await this.appointmentService.getAppointmentById(
         parseInt(req.params.id)
       );
-      if (!appointment)
-        return res.status(404).json({ error: "Appointment not found" });
+      if (!appointment) {
+        res.status(404).json({ error: "Appointment not found" });
+      }
       res.json(appointment);
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async updateAppointment(req: Request, res: Response, next: NextFunction) {
+  updateAppointment = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const appointment = await this.appointmentService.updateAppointment(
         parseInt(req.params.id),
         req.body
       );
-      if (!appointment)
-        return res.status(404).json({ error: "Appointment not found" });
+      if (!appointment) {
+        res.status(404).json({ error: "Appointment not found" });
+      }
       res.json(appointment);
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async cancelAppointment(req: Request, res: Response, next: NextFunction) {
+  cancelAppointment = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       await this.appointmentService.cancelAppointment(parseInt(req.params.id));
       res.status(204).send();
     } catch (error) {
       next(error);
     }
-  }
+  };
 }

@@ -6,7 +6,7 @@ export const AppDataSource = new DataSource({
   host: "auth-db",
   port: 5432,
   username: "auth_user",
-  password: "your_pass",
+  password: "auth_pass",
   database: "auth_db",
   entities: [User],
   synchronize: true, // Set to false in production

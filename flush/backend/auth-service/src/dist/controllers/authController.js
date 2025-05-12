@@ -17,8 +17,8 @@ class AuthController {
     register(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { username, password, role } = req.body;
-                const user = yield this.authService.register(username, password, role);
+                const { username, password, roles } = req.body;
+                const user = yield this.authService.register(username, password, roles);
                 res.status(201).json(user);
             }
             catch (error) {

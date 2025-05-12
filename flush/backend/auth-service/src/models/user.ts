@@ -11,6 +11,6 @@ export class User {
   @Column()
   password_hash!: string;
 
-  @Column()
+  @Column("text", { array: true })
   roles!: string[]; // e.g., 'admin', 'doctor', 'staff', 'patient'
 }

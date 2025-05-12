@@ -28,7 +28,7 @@ function startServer() {
         const channel = yield (0, rabbitmq_1.connectRabbitMQ)();
         const authService = new authService_1.AuthService(channel);
         const authController = new authController_1.AuthController(authService);
-        app.use("/auth", (0, authRoutes_1.authRoutes)(authController));
+        app.use("/", (0, authRoutes_1.authRoutes)(authController));
         app.use(errorHandler_1.errorHandler);
         app.listen(3000, () => {
             console.log("Auth Service running on port 3000");

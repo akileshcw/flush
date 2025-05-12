@@ -19,7 +19,7 @@ async function startServer() {
   const patientService = new PatientService(channel);
   const patientController = new PatientController(patientService);
 
-  app.use("/patients", patientRoutes(patientController));
+  app.use("/", patientRoutes(patientController));
   app.use(errorHandler);
 
   app.listen(3001, () => {
