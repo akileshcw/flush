@@ -3,10 +3,10 @@ import { Patient } from "../models/patient";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: "localhost",
+  host: "patient-db",
   port: 5432,
-  username: "your_username",
-  password: "your_password",
+  username: "patient_user",
+  password: "patient_pass",
   database: "patient_db",
   entities: [Patient],
   synchronize: true, // Set to false in production

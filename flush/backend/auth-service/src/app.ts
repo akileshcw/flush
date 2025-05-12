@@ -5,14 +5,16 @@ import { AuthService } from "./services/authService";
 import { AuthController } from "./controllers/authController";
 import { authRoutes } from "./routes/authRoutes";
 import { errorHandler } from "./utils/errorHandler";
+import { connectRabbitMQ } from "./config/rabbitmq";
 
 async function startServer() {
   const app = express();
   app.use(bodyParser.json());
 
   await AppDataSource.initialize();
+  const channel = await connectRabbitMQ();
 
-  const authService = new AuthService();
+  const authService = new AuthService(channel);
   const authController = new AuthController(authService);
 
   app.use("/auth", authRoutes(authController));

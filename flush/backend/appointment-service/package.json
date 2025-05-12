@@ -1,32 +1,28 @@
 {
-  "name": "auth-service",
+  "name": "appointment-service",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/app.js",
+  "main": "./src/app.js",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "start": "npm run build && node dist/app.js",
-    "dev": "nodemon src/app.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/app.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "description": "",
   "dependencies": {
     "amqplib": "^0.10.8",
-    "bcrypt": "^5.1.1",
     "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
     "typeorm": "^0.3.23"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.7",
-    "@types/bcrypt": "^5.0.2",
     "@types/body-parser": "^1.19.5",
     "@types/express": "^5.0.1",
-    "@types/jsonwebtoken": "^9.0.2",
     "@types/node": "^22.15.17",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",

@@ -1,7 +1,7 @@
 FROM node:23-alpine
-WORKDIR /app
+WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN npx tsc
-CMD ["node", "dist/app.js"]
+EXPOSE 3001
+CMD ["npm", "start"]

@@ -1,18 +1,141 @@
-version: "3"
+version: "3.8"
+
 services:
+  # Kong API Gateway
+  kong:
+    image: kong:2.8.1
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+    volumes:
+      - ./api-gateway/kong.yml:/kong/declarative/kong.yml
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - patient-service
+      - appointment-service
+      - doctor-service
+      - patient-portal-service
+
+  # Authentication Service
   auth-service:
     build: ./auth-service
-    ports:
-      - "3000:3000"
     environment:
-      DATABASE_URL: postgres://user:password@db-host:5432/auth_db
-      JWT_SECRET: your_jwt_secret
+      - DATABASE_URL=postgres://auth_user:auth_pass@auth-db:5432/auth_db
+    depends_on:
+      - auth-db
 
+  # Patient Service
   patient-service:
     build: ./patient-service
-    ports:
-      - "3001:3001"
     environment:
-      DATABASE_URL: postgres://user:password@db-host:5432/patient_db
-      RABBITMQ_URL: amqp://user:password@mq-host:5672
-      JWT_SECRET: your_jwt_secret
+      - DATABASE_URL=postgres://patient_user:patient_pass@patient-db:5432/patient_db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - patient-db
+      - rabbitmq
+
+  # Appointment Service
+  appointment-service:
+    build: ./appointment-service
+    environment:
+      - DATABASE_URL=postgres://appointment_user:appointment_pass@appointment-db:5432/appointment_db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - appointment-db
+      - rabbitmq
+
+  # Doctor Service
+  doctor-service:
+    build: ./doctor-service
+    environment:
+      - DATABASE_URL=postgres://doctor_user:doctor_pass@doctor-db:5432/doctor_db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - doctor-db
+      - rabbitmq
+
+  # Patient Portal Service
+  patient-portal-service:
+    build: ./patient-portal-service
+    environment:
+      - DATABASE_URL=postgres://portal_user:portal_pass@portal-db:5432/portal_db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - portal-db
+      - rabbitmq
+
+  # RabbitMQ for event-driven communication
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  # Databases (one per service)
+  auth-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=auth_user
+      - POSTGRES_PASSWORD=auth_pass
+      - POSTGRES_DB=auth_db
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+
+  patient-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=patient_user
+      - POSTGRES_PASSWORD=patient_pass
+      - POSTGRES_DB=patient_db
+    volumes:
+      - patient_data:/var/lib/postgresql/data
+
+  appointment-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=appointment_user
+      - POSTGRES_PASSWORD=appointment_pass
+      - POSTGRES_DB=appointment_db
+    volumes:
+      - appointment_data:/var/lib/postgresql/data
+
+  doctor-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=doctor_user
+      - POSTGRES_PASSWORD=doctor_pass
+      - POSTGRES_DB=doctor_db
+    volumes:
+      - doctor_data:/var/lib/postgresql/data
+
+  portal-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=portal_user
+      - POSTGRES_PASSWORD=portal_pass
+      - POSTGRES_DB=portal_db
+    volumes:
+      - portal_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "8081:80"
+    depends_on:
+      - auth-db
+      - patient-db
+      - appointment-db
+      - doctor-db
+      - portal-db
+
+volumes:
+  auth_data:
+  patient_data:
+  appointment_data:
+  doctor_data:
+  portal_data:

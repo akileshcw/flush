@@ -3,23 +3,30 @@ import { User } from "../models/user";
 import { AppDataSource } from "../config/database";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
+import { Channel } from "amqplib";
 
 export class AuthService {
   private userRepository: Repository<User>;
+  private channel: Channel;
   private jwtSecret: string = "your_jwt_secret"; // Use environment variable in production
 
-  constructor() {
+  constructor(channel: Channel) {
+    this.channel = channel;
     this.userRepository = AppDataSource.getRepository(User);
   }
 
   async register(
     username: string,
     password: string,
-    role: string
+    roles: string[]
   ): Promise<User> {
     const password_hash = await bcrypt.hash(password, 10);
-    const user = this.userRepository.create({ username, password_hash, role });
+    const user = this.userRepository.create({ username, password_hash, roles });
     await this.userRepository.save(user);
+    this.publishEvent("user.registered", {
+      id: user.id,
+      username,
+    });
     return user;
   }
 
@@ -28,12 +35,20 @@ export class AuthService {
     if (!user) throw new Error("User not found");
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) throw new Error("Invalid password");
-    const token = jwt.sign({ id: user.id, role: user.role }, this.jwtSecret, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: user.id, groups: user.roles, iss: "auth-service", expiresIn: "1h" },
+      this.jwtSecret,
+      {
+        expiresIn: "1h",
+      }
+    );
+    this.publishEvent("user.logged_in", { id: user.id, username });
     return token;
   }
 
+  private publishEvent(event: string, data: any) {
+    this.channel.publish(event, data);
+  }
   verifyToken(token: string): any {
     return jwt.verify(token, this.jwtSecret);
   }

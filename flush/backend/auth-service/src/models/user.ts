@@ -3,14 +3,14 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ unique: true })
-  username: string;
+  username!: string;
 
   @Column()
-  password_hash: string;
+  password_hash!: string;
 
   @Column()
-  role: string; // e.g., 'admin', 'doctor', 'staff', 'patient'
+  roles!: string[]; // e.g., 'admin', 'doctor', 'staff', 'patient'
 }

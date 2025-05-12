@@ -7,5 +7,6 @@ export function errorHandler(
   next: NextFunction
 ) {
   console.error(err.stack);
-  res.status(500).json({ error: err.message });
+  const status = err.message === "Doctor not found" ? 404 : 500;
+  res.status(status).json({ error: err.message || "Internal server error" });
 }

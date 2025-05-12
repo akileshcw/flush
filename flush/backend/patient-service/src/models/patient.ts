@@ -8,26 +8,26 @@ import {
 @Entity()
 export class Patient {
   @PrimaryGeneratedColumn()
-  member_id: number;
+  member_id!: number;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column({ nullable: true })
-  email: string;
+  email!: string;
 
   @Column({ unique: true })
-  phone_number: string;
+  phone_number!: string;
 
   @Column({ nullable: true })
-  date_of_birth: Date;
+  date_of_birth!: Date;
 
   @Column({ nullable: true })
-  preconditions: string;
+  preconditions!: string;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
 
   @Column()
-  branch_id: number;
+  branch_id!: number;
 }

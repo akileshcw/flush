@@ -1,13 +1,13 @@
 import { DataSource } from "typeorm";
-import { User } from "../models/user";
+import { Doctor } from "../models/doctor";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: "auth-db",
+  host: "doctor-db",
   port: 5432,
-  username: "auth_user",
-  password: "your_pass",
-  database: "auth_db",
-  entities: [User],
+  username: "doctor_user",
+  password: "doctor_pass",
+  database: "doctor_db",
+  entities: [Doctor],
   synchronize: true, // Set to false in production
 });

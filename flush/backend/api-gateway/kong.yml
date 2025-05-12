@@ -1,0 +1,81 @@
+_format_version: "1.1"
+services:
+  - name: auth-service
+    url: http://auth-service:3000
+    routes:
+      - name: auth-route
+        paths:
+          - /auth
+    plugins: [] # No authentication for auth service
+
+  - name: patient-service
+    url: http://patient-service:3001
+    routes:
+      - name: patient-route
+        paths:
+          - /patients
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: "iss"
+          secret_is_base64: false
+          claims_to_verify: ["exp"]
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - patients
+
+  - name: appointment-service
+    url: http://appointment-service:3002
+    routes:
+      - name: appointment-route
+        paths:
+          - /appointments
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: "iss"
+          secret_is_base64: false
+          claims_to_verify: ["exp"]
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - appointments
+
+  - name: doctor-service
+    url: http://doctor-service:3003
+    routes:
+      - name: doctor-route
+        paths:
+          - /doctors
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: "iss"
+          secret_is_base64: false
+          claims_to_verify: ["exp"]
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - doctors
+
+  - name: patient-portal-service
+    url: http://patient-portal-service:3004
+    routes:
+      - name: patient-portal-route
+        paths:
+          - /patient-portal
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: "iss"
+          secret_is_base64: false
+          claims_to_verify: ["exp"]
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - patientPortal
