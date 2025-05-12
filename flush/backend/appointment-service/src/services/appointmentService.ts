@@ -2,12 +2,15 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../config/database";
 import { Appointment } from "../models/appointment";
+import { Channel } from "amqplib";
 
 export class AppointmentService {
   private appointmentRepository: Repository<Appointment>;
+  private channel: Channel;
 
-  constructor() {
+  constructor(channel: Channel) {
     this.appointmentRepository = AppDataSource.getRepository(Appointment);
+    this.channel = channel;
   }
 
   async createAppointment(
@@ -44,6 +47,13 @@ export class AppointmentService {
     });
 
     await this.appointmentRepository.save(appointment);
+    this.publishEvent("appointment.created", {
+      id: appointment.id,
+      patientId,
+      doctorId,
+      dateTime,
+      notes,
+    });
     return appointment;
   }
 
@@ -60,11 +70,17 @@ export class AppointmentService {
     data: Partial<Appointment>
   ): Promise<Appointment | null> {
     await this.appointmentRepository.update(id, data);
+    this.publishEvent("appointment.updated", {
+      id,
+      data,
+    });
     return this.getAppointmentById(id);
   }
 
   async cancelAppointment(id: number): Promise<void> {
     await this.appointmentRepository.update(id, { status: "canceled" });
+    this.publishEvent("appointment.canceled", { id });
+    return;
   }
 
   async checkDoctorAvailability(
@@ -85,5 +101,10 @@ export class AppointmentService {
       where: { patientId, dateTime, status: "scheduled" },
     });
     return conflictingAppointments.length > 0;
+  }
+
+  private publishEvent(event: string, data: any) {
+    const message = JSON.stringify({ event, data });
+    this.channel.sendToQueue("auth.events", Buffer.from(message));
   }
 }

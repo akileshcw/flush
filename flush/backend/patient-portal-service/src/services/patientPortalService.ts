@@ -22,4 +22,9 @@ export class PatientPortalService {
     if (!response.ok) throw new Error("Appointments not found");
     return response.json();
   }
+
+  private publishEvent(event: string, data: any) {
+    const message = JSON.stringify({ event, data });
+    this.channel.sendToQueue("patientportal.events", Buffer.from(message));
+  }
 }

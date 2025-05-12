@@ -47,7 +47,8 @@ export class AuthService {
   }
 
   private publishEvent(event: string, data: any) {
-    this.channel.publish(event, data);
+    const message = JSON.stringify({ event, data });
+    this.channel.sendToQueue("auth.events", Buffer.from(message));
   }
   verifyToken(token: string): any {
     return jwt.verify(token, this.jwtSecret);

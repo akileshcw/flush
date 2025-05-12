@@ -19,12 +19,14 @@ const authService_1 = require("./services/authService");
 const authController_1 = require("./controllers/authController");
 const authRoutes_1 = require("./routes/authRoutes");
 const errorHandler_1 = require("./utils/errorHandler");
+const rabbitmq_1 = require("./config/rabbitmq");
 function startServer() {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, express_1.default)();
         app.use(body_parser_1.default.json());
         yield database_1.AppDataSource.initialize();
-        const authService = new authService_1.AuthService();
+        const channel = yield (0, rabbitmq_1.connectRabbitMQ)();
+        const authService = new authService_1.AuthService(channel);
         const authController = new authController_1.AuthController(authService);
         app.use("/auth", (0, authRoutes_1.authRoutes)(authController));
         app.use(errorHandler_1.errorHandler);
