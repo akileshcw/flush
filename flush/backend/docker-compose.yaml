@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # RabbitMQ for event-driven communication
   rabbitmq:
@@ -29,6 +27,7 @@ services:
       - appointment-service
       - doctor-service
       - patient-portal-service
+      - notification-service
 
   # Authentication Service
   auth-service:
@@ -84,13 +83,11 @@ services:
   # Notification Service
   notification-service:
     build: ./notification-service
-    volumes:
-      - ./notification-service:/usr/src/app
-      - /usr/src/app/node_modules # Anonymous volume for node_modules
     environment:
-      - DATABASE_URL=postgres://notificatoin_user:notification_pass@notification-db:5432/notification_db
+      - DATABASE_URL=postgres://notification_user:notification_pass@notification-db:5432/notification_db
     depends_on:
       - notification-db
+      - rabbitmq
 
     # Databases (one per service)
   auth-db:
@@ -166,3 +163,4 @@ volumes:
   appointment_data:
   doctor_data:
   portal_data:
+  notification_data:

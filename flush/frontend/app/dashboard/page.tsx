@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "Experiment 01 - Crafted.is",
 };
 
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/components/ui/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,19 +12,19 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/breadcrumb";
-import { Separator } from "@/components/separator";
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/sidebar";
-import { Button } from "@/components/button";
-import UserDropdown from "@/components/user-dropdown";
-import FeedbackDialog from "@/components/feedback-dialog";
-import ContactsTable from "@/components/contacts-table";
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import UserDropdown from "@/components/ui/user-dropdown";
+import FeedbackDialog from "@/components/ui/feedback-dialog";
+import ContactsTable from "@/components/ui/contacts-table";
 import { RiScanLine } from "@remixicon/react";
-import { StatsGrid } from "@/components/stats-grid";
+import { StatsGrid } from "@/components/ui/stats-grid";
 
 export default function Page() {
   return (
