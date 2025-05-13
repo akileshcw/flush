@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   # RabbitMQ for event-driven communication
   rabbitmq:
@@ -11,35 +13,66 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+    restart: unless-stopped
+
+  # Postgres database for Kong to store consumer data
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kong
+      POSTGRES_DB: kong
+    volumes:
+      - kong_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" # Expose PostgreSQL port for manual access if needed
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kong"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   # Kong API Gateway
   kong:
     image: kong:2.8.1
     environment:
-      KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
-    volumes:
-      - ./api-gateway/kong.yml:/kong/declarative/kong.yml
+      KONG_DATABASE: "postgres"
+      KONG_PG_HOST: "postgres"
+      KONG_PG_USER: "kong"
+      KONG_PG_PASSWORD: "kong"
+      KONG_PG_DATABASE: "kong"
+      KONG_PROXY_ACCESS_LOG: "/dev/stdout"
+      KONG_ADMIN_ACCESS_LOG: "/dev/stdout"
+      KONG_PROXY_ERROR_LOG: "/dev/stderr"
+      KONG_ADMIN_ERROR_LOG: "/dev/stderr"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001, 0.0.0.0:8444 ssl"
     ports:
-      - "8000:8000"
-      - "8001:8001"
+      - "8000:8000" # Proxy port
+      - "8001:8001" # Admin API port
+      - "8443:8443" # Proxy SSL (optional, if used)
+      - "8444:8444" # Admin SSL (optional, if used)
     depends_on:
+      - postgres
       - auth-service
       - patient-service
       - appointment-service
       - doctor-service
       - patient-portal-service
       - notification-service
+    restart: unless-stopped
 
   # Authentication Service
   auth-service:
     build: ./auth-service
     volumes:
       - ./auth-service:/usr/src/app
-      - /usr/src/app/node_modules # Anonymous volume for node_modules
+      - /usr/src/app/node_modules
     environment:
       - DATABASE_URL=postgres://auth_user:auth_pass@auth-db:5432/auth_db
     depends_on:
       - auth-db
+    restart: unless-stopped
 
   # Patient Service
   patient-service:
@@ -50,6 +83,7 @@ services:
     depends_on:
       - patient-db
       - rabbitmq
+    restart: unless-stopped
 
   # Appointment Service
   appointment-service:
@@ -60,6 +94,7 @@ services:
     depends_on:
       - appointment-db
       - rabbitmq
+    restart: unless-stopped
 
   # Doctor Service
   doctor-service:
@@ -70,6 +105,7 @@ services:
     depends_on:
       - doctor-db
       - rabbitmq
+    restart: unless-stopped
 
   # Patient Portal Service
   patient-portal-service:
@@ -80,17 +116,20 @@ services:
     depends_on:
       - portal-db
       - rabbitmq
+    restart: unless-stopped
 
   # Notification Service
   notification-service:
     build: ./notification-service
     environment:
       - DATABASE_URL=postgres://notification_user:notification_pass@notification-db:5432/notification_db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     depends_on:
       - notification-db
       - rabbitmq
+    restart: unless-stopped
 
-    # Databases (one per service)
+  # Databases (one per service)
   auth-db:
     image: postgres:13
     environment:
@@ -99,6 +138,7 @@ services:
       - POSTGRES_DB=auth_db
     volumes:
       - auth_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   patient-db:
     image: postgres:13
@@ -108,6 +148,7 @@ services:
       - POSTGRES_DB=patient_db
     volumes:
       - patient_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   appointment-db:
     image: postgres:13
@@ -117,6 +158,7 @@ services:
       - POSTGRES_DB=appointment_db
     volumes:
       - appointment_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   doctor-db:
     image: postgres:13
@@ -126,6 +168,7 @@ services:
       - POSTGRES_DB=doctor_db
     volumes:
       - doctor_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   portal-db:
     image: postgres:13
@@ -135,6 +178,7 @@ services:
       - POSTGRES_DB=portal_db
     volumes:
       - portal_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   notification-db:
     image: postgres:13
@@ -144,6 +188,9 @@ services:
       - POSTGRES_DB=notification_db
     volumes:
       - notification_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # pgAdmin for database management (optional)
   pgadmin:
     image: dpage/pgadmin4
     environment:
@@ -157,8 +204,10 @@ services:
       - appointment-db
       - doctor-db
       - portal-db
+    restart: unless-stopped
 
 volumes:
+  kong_data:
   auth_data:
   patient_data:
   appointment_data:
