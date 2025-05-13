@@ -30,7 +30,19 @@ class AuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, password } = req.body;
+                console.log("the username and password is", username, password);
                 const token = yield this.authService.login(username, password);
+                res.json({ token });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    getUsers(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const token = yield this.authService.getUsers();
                 res.json({ token });
             }
             catch (error) {

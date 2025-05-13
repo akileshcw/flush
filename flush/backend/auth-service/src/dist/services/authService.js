@@ -68,6 +68,7 @@ class AuthService {
     login(username, password) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield this.userRepository.findOneBy({ username });
+            console.log("the username in auth service is", user);
             if (!user)
                 throw new Error("User not found");
             const isValid = yield bcrypt.compare(password, user.password_hash);
@@ -78,6 +79,12 @@ class AuthService {
             });
             this.publishEvent("user.logged_in", { id: user.id, username });
             return token;
+        });
+    }
+    getUsers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const users = yield this.userRepository.find();
+            return users;
         });
     }
     publishEvent(event, data) {

@@ -32,6 +32,7 @@ export class AuthService {
 
   async login(username: string, password: string): Promise<string> {
     const user = await this.userRepository.findOneBy({ username });
+    console.log("the username in auth service is", user);
     if (!user) throw new Error("User not found");
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) throw new Error("Invalid password");
@@ -44,6 +45,11 @@ export class AuthService {
     );
     this.publishEvent("user.logged_in", { id: user.id, username });
     return token;
+  }
+
+  async getUsers(): Promise<User[]> {
+    const users = await this.userRepository.find();
+    return users;
   }
 
   private publishEvent(event: string, data: any) {

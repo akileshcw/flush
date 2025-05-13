@@ -21,7 +21,17 @@ export class AuthController {
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       const { username, password } = req.body;
+      console.log("the username and password is", username, password);
       const token = await this.authService.login(username, password);
+      res.json({ token });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getUsers(req: Request, res: Response, next: NextFunction) {
+    try {
+      const token = await this.authService.getUsers();
       res.json({ token });
     } catch (error) {
       next(error);
