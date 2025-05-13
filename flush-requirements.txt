@@ -1,0 +1,69 @@
+Patient Management
+As a user, whenever a new patient enters my hospital I should be able to get their informations like Name, Email, Phone number, Date of Birth and preconditions and create a member ID for them
+Whenever I access the Member ID/Phone number of the patient I should be able to fetch their details
+Whenever I try to search with Phone number, I should be able to fetch Member ID
+I should also be able to track their details like date the member ID is created and branch in which member ID is created[Applicable for multiple branch hospital]
+I should be able to add the updates like procedure done, suggestions and medication suggested , medical reports and date of their visits which is linked to their member ID
+I should be able to delete the records of the patient [Only Admin]
+I should be able to update existing record In case If some info is mismatched/incorrect
+Appointment Scheduling
+I should be able to schedule a appointment for the patient for new patient
+I should be able to schedule a appointment for the patient for existing patient
+If multiple doctors are there in the hospital, scheduling appointment should be done with Doctor ID
+The doctors should be able to see their time slot before the confirm their appointment
+Appointment could be rescheduled based on the request of patient/doctor
+There should be a option to cancel the appointment
+There should be some catch to prevent double booking of appointment [Same patient booking twice]
+There should be some catch to prevent doctor scheduling appointment for 2 patients at the same time[In case If doctor needed it]
+Business Analytics [*daily/weekly/monthly/yearly reports to be generated for below]
+Track how many new patients visited the hospital 
+How much existing customers book their appointment
+Revenue 
+Procedure used [count like how much root canal done, cleaning done ] so that they could focus on less number/advertise on more number
+Expense like staff salary, staff advance and maintenance includes cleaning, rent , EB Bill and others
+Equipment Management
+Maintain inventory of medical equipments like gloves, drills and others
+track expense of new bought equipments
+Minimum quantity alert should be set for medical equipment
+Report on how frequently the equipments are restocked
+Report on equipment usage [ Optional]
+Doctor ID Management
+Specific ID should be created for each doctor
+Appointment slot should be displayed dedicatedly for each doctor so that he could book appointment [including holiday breaks /vacation..He should be able to customize it]
+He could be able to see his revenue with categories like
+New customer and existing customer appointment
+Procedures
+Should be able to track expenses 
+Able to track equipment usage[Optional]
+Authentication:
+Separate Login should be provided for Doctor who could access information only applicable for them [Doctor ID Management and Patient reports]
+For Admin Doctor all the access will be provided
+For staff persons separate Login should be provided [ Refer Patient Management and appointment scheduling]
+For Patient, they should be able to access only patient portal 
+Notifications:
+Welcome Message Notification
+Appointment Alert Notification
+Any change in appointment schedule/cancellations would be notified
+Any custom instruction to be given to patient [Like any thing should be done before/after procedure] could be sent
+Patient Feedback
+Patient Reports:
+Patient treatments, Allergy information, preconditions, Diagnosis, X-rays and post treatment observations should be recorded
+It should be linked to patient Member ID and Phone number 
+Should be able to attach documents like reports
+Should be able to view patient bills
+Should be able to update patient record
+Should be able to delete existing records [ Only by Admin]
+Patient Portal:
+Should be able to see their personal information
+Should be able to see their doctor information
+Should be able to request and fix the appointment with their chosen doctor
+Should be able to see their appointment history and upcoming appointment
+Able to see their medical conditions and reports
+Able to see preconditions , procedure given , diagnosis
+Should be able to see few general healthy habits and customized suggestions
+Should be able to see their expenses
+Should be able to submit their feedback
+Patient Feedback:
+Patient should be able to give feedback using their portal/website/Notifications
+Feedback includes ratings and suggestions
+Doctor should be able to respond to the feedback received

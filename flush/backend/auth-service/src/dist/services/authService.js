@@ -83,6 +83,7 @@ class AuthService {
     publishEvent(event, data) {
         const message = JSON.stringify({ event, data });
         this.channel.sendToQueue("auth.events", Buffer.from(message));
+        console.log(`Event published: ${event}`, data);
     }
     verifyToken(token) {
         return jwt.verify(token, this.jwtSecret);

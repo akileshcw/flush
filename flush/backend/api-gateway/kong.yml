@@ -84,3 +84,22 @@ services:
           hide_groups_header: true
           allow:
             - patientPortal
+
+  - name: notification-service
+    url: http://notification-service:3005
+    routes:
+      - name: notification-route
+        paths:
+          - /notifications
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: "iss"
+          secret_is_base64: false
+          claims_to_verify: ["exp"]
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - notifications

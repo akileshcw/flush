@@ -81,6 +81,17 @@ services:
       - portal-db
       - rabbitmq
 
+  # Notification Service
+  notification-service:
+    build: ./notification-service
+    volumes:
+      - ./notification-service:/usr/src/app
+      - /usr/src/app/node_modules # Anonymous volume for node_modules
+    environment:
+      - DATABASE_URL=postgres://notificatoin_user:notification_pass@notification-db:5432/notification_db
+    depends_on:
+      - notification-db
+
     # Databases (one per service)
   auth-db:
     image: postgres:13
@@ -127,6 +138,14 @@ services:
     volumes:
       - portal_data:/var/lib/postgresql/data
 
+  notification-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=notification_user
+      - POSTGRES_PASSWORD=notification_pass
+      - POSTGRES_DB=notification_db
+    volumes:
+      - notification_data:/var/lib/postgresql/data
   pgadmin:
     image: dpage/pgadmin4
     environment:

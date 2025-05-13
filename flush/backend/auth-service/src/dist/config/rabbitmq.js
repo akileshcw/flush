@@ -13,12 +13,43 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectRabbitMQ = connectRabbitMQ;
+exports.connectToRabbitMQ = connectToRabbitMQ;
 const amqplib_1 = __importDefault(require("amqplib"));
 function connectRabbitMQ() {
     return __awaiter(this, void 0, void 0, function* () {
         const connection = yield amqplib_1.default.connect("amqp://guest:guest@rabbitmq:5672");
         const channel = yield connection.createChannel();
         yield channel.assertQueue("auth.events", { durable: true });
+        return channel;
+    });
+}
+function connectToRabbitMQ() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const rabbitmqUrl = "amqp://guest:guest@rabbitmq:5672";
+        let connection;
+        let channel;
+        const maxRetries = 5;
+        const retryDelay = 5000;
+        let retries = 0;
+        while (!connection && retries < maxRetries) {
+            try {
+                connection = yield amqplib_1.default.connect(rabbitmqUrl);
+                channel = yield connection.createChannel();
+                yield channel.assertQueue("auth.events", { durable: true });
+                console.log("Connected to RabbitMQ");
+            }
+            catch (error) {
+                console.error("Failed to connect to RabbitMQ, retrying...", error);
+                retries++;
+                if (retries < maxRetries) {
+                    yield new Promise((resolve) => setTimeout(resolve, retryDelay));
+                }
+                else {
+                    console.error("Max retries reached. Exiting...");
+                    process.exit(1);
+                }
+            }
+        }
         return channel;
     });
 }
