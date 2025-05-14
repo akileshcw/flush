@@ -23,8 +23,8 @@ async function startServer() {
     app.use("/", notificationRoutes(notificationController));
 
     app.use(errorHandler);
-    app.listen(3000, () => {
-      console.log("Notification Service running on port 3000");
+    app.listen(3005, () => {
+      console.log("Notification Service running on port 3005");
     });
   } catch (error) {
     console.error("Error starting notification service:", error);

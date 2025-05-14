@@ -35,7 +35,7 @@ services:
 
   # Kong API Gateway
   kong:
-    image: kong:2.8.1
+    image: kong:3.9
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml

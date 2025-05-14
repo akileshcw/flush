@@ -1,17 +1,13 @@
-_format_version: "1.1"
-
-consumer_groups:
-  - name: doctors
+_format_version: "2.1"
 
 consumers:
   - username: "auth-service-consumer"
-    groups:
-      - doctors
     jwt_secrets:
       - key: "auth-service"
         algorithm: "HS256"
         secret: "your_jwt_secret"
-
+    acls:
+      - group: "doctors"
 services:
   - name: auth-service
     url: http://auth-service:3000
@@ -20,7 +16,7 @@ services:
         paths:
           - /auth
         strip_path: true
-    plugins: [] # No authentication for auth service
+    plugins: []
 
   - name: patient-service
     url: http://patient-service:3001
@@ -75,7 +71,6 @@ services:
           claims_to_verify: ["exp"]
       - name: acl
         config:
-          include-consumer-groups: true
           hide_groups_header: true
           allow:
             - doctors

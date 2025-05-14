@@ -23,8 +23,8 @@ async function startServer() {
     app.use(errorHandler);
     app.use("/", patientPortalRoutes(patientPortalController));
 
-    app.listen(3001, () =>
-      console.log("Patient Portal Service running on port 3001")
+    app.listen(3004, () =>
+      console.log("Patient Portal Service running on port 3004")
     );
   } catch (error) {
     console.error("Error starting patient portal service:", error);
