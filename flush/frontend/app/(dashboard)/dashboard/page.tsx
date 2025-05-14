@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Experiment 01 - Crafted.is",
+  title: "Flush - Dashboard",
 };
 
 import { AppSidebar } from "@/components/ui/app-sidebar";
@@ -25,8 +25,14 @@ import FeedbackDialog from "@/components/ui/feedback-dialog";
 import ContactsTable from "@/components/ui/contacts-table";
 import { RiScanLine } from "@remixicon/react";
 import { StatsGrid } from "@/components/ui/stats-grid";
+import { cookies } from "next/headers";
 
-export default function Page() {
+export default async function Page() {
+  const cookieStore = await cookies();
+  console.log("the cookies is", cookieStore);
+  const authCookies = cookieStore.get("_headers");
+
+  console.log("auth cookies is", authCookies);
   return (
     <SidebarProvider>
       <AppSidebar />
