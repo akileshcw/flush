@@ -10,6 +10,8 @@ export class DoctorController {
 
   async createDoctor(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log("running create doctor service");
+      console.log("the request received is", req.headers);
       const doctor = await this.doctorService.createDoctor(req.body);
       res.status(201).json(doctor);
     } catch (error) {

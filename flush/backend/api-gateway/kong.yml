@@ -1,4 +1,10 @@
 _format_version: "1.1"
+consumers:
+  - username: "auth-service-consumer"
+    jwt_secrets:
+      - key: "auth-service"
+        algorithm: "HS256"
+        secret: "your_jwt_secret"
 
 services:
   - name: auth-service
@@ -23,7 +29,6 @@ services:
           key_claim_name: "iss"
           secret_is_base64: false
           claims_to_verify: ["exp"]
-          secret: "your_jwt_secret"
       - name: acl
         config:
           hide_groups_header: true

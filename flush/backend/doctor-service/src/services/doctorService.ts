@@ -13,9 +13,10 @@ export class DoctorService {
   }
 
   async createDoctor(data: Partial<Doctor>): Promise<Doctor> {
-    if (!data.name || !data.specialization) {
-      throw new Error("Name and specialization are required");
+    if (!data.name || !data.specialization || !data.contactInfo) {
+      throw new Error("Name,specialization and contactInfo are required");
     }
+    console.log("the data in doctor service before creatign doctor is", data);
     const doctor = this.doctorRepository.create(data);
     await this.doctorRepository.save(doctor);
     this.publishEvent("doctor.created", doctor);

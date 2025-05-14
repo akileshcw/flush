@@ -36,6 +36,7 @@ export class AuthService {
     if (!user) throw new Error("User not found");
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) throw new Error("Invalid password");
+    console.log("the user roles is", user.roles);
     const token = jwt.sign(
       { id: user.id, groups: user.roles, iss: "auth-service", expiresIn: "1h" },
       this.jwtSecret,
@@ -43,6 +44,7 @@ export class AuthService {
         expiresIn: "1h",
       }
     );
+    console.log("the token contains the group", jwt.decode(token));
     this.publishEvent("user.logged_in", { id: user.id, username });
     return token;
   }
