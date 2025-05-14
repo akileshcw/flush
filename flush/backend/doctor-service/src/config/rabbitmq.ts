@@ -19,6 +19,7 @@ async function consumeEvents(event: string, channel: amqp.Channel) {
       if (event === "user.registered") {
         console.log("user registered event received", data);
       }
+      channel.ack(msg);
     }
   });
 }

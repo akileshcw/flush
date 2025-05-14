@@ -20,10 +20,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { register } from "@/actions/auth.action";
 
 const registerFormSchema = z.object({
-  name: z.string().min(1),
-  email: z.string(),
+  username: z.string().min(1),
   password: z.string().min(1),
   confirmPassword: z.string().min(1),
 });
@@ -36,14 +36,9 @@ export function SignupForm({
     resolver: zodResolver(registerFormSchema),
   });
 
-  function onSubmit(values: z.infer<typeof registerFormSchema>) {
+  async function onSubmit(values: z.infer<typeof registerFormSchema>) {
     try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
+      const regiter = await register(values);
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
@@ -62,7 +57,7 @@ export function SignupForm({
                 <div className="flex h-8 w-8 items-center justify-center rounded-md">
                   <GalleryVerticalEnd className="size-6" />
                 </div>
-                <span className="sr-only">Acme Inc.</span>
+                <span className="sr-only">Flush</span>
               </Link>
               <h1 className="text-xl font-bold">Create your account</h1>
               <div className="text-center text-sm">
@@ -76,13 +71,13 @@ export function SignupForm({
               <div className="grid gap-2">
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="name">Full Name</FormLabel>
+                      <FormLabel htmlFor="name">Username</FormLabel>
                       <Input
                         type="text"
-                        placeholder="John Doe"
+                        placeholder="johnDoe"
                         required
                         {...field}
                       />
@@ -91,21 +86,38 @@ export function SignupForm({
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="password">Password</FormLabel>
+                      <Input
+                        id="password"
+                        type="password"
+                        required
+                        {...field}
+                      />
+                    </FormItem>
+                  )}
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" required />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input id="confirmPassword" type="password" required />
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label htmlFor="confirmPassword">Confirm Password</Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        required
+                        {...field}
+                      />
+                    </FormItem>
+                  )}
+                />
               </div>
               <Button type="submit" className="w-full mt-2">
                 Sign Up

@@ -3,6 +3,10 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+export const register = async (values: any) => {
+  return values;
+};
+
 export const login = async (formData: FormData) => {
   const username = formData.get("username");
   const password = formData.get("password");
