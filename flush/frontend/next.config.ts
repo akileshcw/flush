@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
     return {
       beforeFiles: [
         {
-          source: "/home",
+          source: "/",
           destination: "https://invisible-hand-070662.framer.app/",
           basePath: false,
         },
