@@ -26,13 +26,14 @@ import ContactsTable from "@/components/ui/contacts-table";
 import { RiScanLine } from "@remixicon/react";
 import { StatsGrid } from "@/components/ui/stats-grid";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function Page() {
   const cookieStore = await cookies();
-  console.log("the cookies is", cookieStore);
-  const authCookies = cookieStore.get("_headers");
-
+  const authCookies = cookieStore.get("session");
   console.log("auth cookies is", authCookies);
+  if (!authCookies) redirect("/login");
+
   return (
     <SidebarProvider>
       <AppSidebar />

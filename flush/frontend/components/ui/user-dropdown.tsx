@@ -1,3 +1,5 @@
+"use client";
+import { signOut } from "@/actions/auth.action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,7 +61,7 @@ export default function UserDropdown() {
             className="opacity-60"
             aria-hidden="true"
           />
-          <span>Sign out</span>
+          <span onClick={signOut}>Sign out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
