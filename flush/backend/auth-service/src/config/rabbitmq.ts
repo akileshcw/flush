@@ -1,10 +1,29 @@
-import amqp from "amqplib";
+import amqp, { Channel } from "amqplib";
 
-export async function connectRabbitMQ() {
-  const connection = await amqp.connect("amqp://guest:guest@rabbitmq:5672");
-  const channel = await connection.createChannel();
-  await channel.assertQueue("auth.events", { durable: true });
-  return channel;
+export const consumeEvents = async (exchange: string, channel: Channel) => {
+  try {
+    const { queue } = await channel.assertQueue("", {
+      exclusive: true,
+      autoDelete: true,
+    });
+
+    await channel.bindQueue(queue, exchange, "");
+    channel.consume(queue, (msg) => {
+      if (msg) {
+        console.log(
+          "the message received in auth service is",
+          JSON.parse(msg.content.toString())
+        );
+        channel.ack(msg);
+      }
+    });
+  } catch (error) {
+    console.error("Error in consumeEvents:", error);
+  }
+};
+
+export async function connectToExchange(exchange: string, channel: Channel) {
+  await channel.assertExchange(exchange, "fanout", { durable: true });
 }
 
 export async function connectToRabbitMQ() {
@@ -18,9 +37,10 @@ export async function connectToRabbitMQ() {
   while (!connection && retries < maxRetries) {
     try {
       connection = await amqp.connect(rabbitmqUrl);
+      if (!connection) throw new Error("No connection");
       channel = await connection.createChannel();
-      await channel.assertQueue("auth.events", { durable: true });
-      console.log("Connected to RabbitMQ");
+      await connectToExchange("auth.events.fanout", channel);
+      consumeEvents("auth.events.fanout", channel);
     } catch (error) {
       console.error("Failed to connect to RabbitMQ, retrying...", error);
       retries++;

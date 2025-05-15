@@ -21,27 +21,42 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { register } from "@/actions/auth.action";
-
-const registerFormSchema = z.object({
-  username: z.string().min(1),
-  password: z.string().min(1),
-  confirmPassword: z.string().min(1),
-});
+import { RegisterFormValues } from "@/types/form.values";
+import { registerFormSchema } from "@/types/form.schema";
+import { useRouter } from "next/navigation";
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const form = useForm<z.infer<typeof registerFormSchema>>({
+  const router = useRouter();
+  const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
-  async function onSubmit(values: z.infer<typeof registerFormSchema>) {
+  async function onSubmit(values: RegisterFormValues) {
     try {
+      form.clearErrors();
+      if (values.confirmPassword !== values.password)
+        throw new Error("Password don't match");
       const regiter = await register(values);
-    } catch (error) {
+      toast.success("user registered. proceed to login");
+      router.push("/login");
+    } catch (error: any) {
       console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
+      if (error.message === "Password don't match") {
+        form.setError("confirmPassword", {
+          message: "Passwords don't match",
+        });
+        form.setError("password", { message: "Password don't match" });
+        toast.error("Failed to submit the form. Please try again.");
+        return;
+      }
     }
   }
   return (
@@ -114,6 +129,14 @@ export function SignupForm({
                         type="password"
                         required
                         {...field}
+                        onBlur={(e) => {
+                          form.clearErrors("confirmPassword");
+                          const value = e.target.value;
+                          if (value !== form.getValues("password"))
+                            form.setError("confirmPassword", {
+                              message: "Passwords don't match",
+                            });
+                        }}
                       />
                     </FormItem>
                   )}

@@ -16,7 +16,7 @@ export class DoctorService {
     if (!data.name || !data.specialization || !data.contactInfo) {
       throw new Error("Name,specialization and contactInfo are required");
     }
-    console.log("the data in doctor service before creatign doctor is", data);
+    console.log("the data in doctor service before creating doctor is", data);
     const doctor = this.doctorRepository.create(data);
     await this.doctorRepository.save(doctor);
     this.publishEvent("doctor.created", doctor);

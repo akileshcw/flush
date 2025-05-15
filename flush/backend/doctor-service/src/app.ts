@@ -4,7 +4,7 @@ import { doctorRoutes } from "./routes/doctorRoutes";
 import { DoctorService } from "./services/doctorService";
 import { DoctorController } from "./controllers/doctorController";
 // Assume RabbitMQ channel is initialized in rabbitmq.ts
-import { connectToRabbitMQ } from "./config/rabbitmq";
+import { connectToRabbitMQ, consumeEvents } from "./config/rabbitmq";
 import { AppDataSource } from "./config/database";
 
 const startServer = async () => {
@@ -12,9 +12,9 @@ const startServer = async () => {
     const app = express();
     app.use(express.json());
 
-    const channel = await connectToRabbitMQ();
     await AppDataSource.initialize();
 
+    const channel = await connectToRabbitMQ();
     const doctorService = new DoctorService(channel!);
     const doctorController = new DoctorController(doctorService);
 

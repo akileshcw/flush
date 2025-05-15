@@ -1,10 +1,29 @@
 "use server";
 
+import { RegisterFormValues } from "@/types/form.values";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export const register = async (values: any) => {
-  return values;
+export const register = async (values: RegisterFormValues) => {
+  console.log("the values received are", values);
+  const registerRawData = await fetch(
+    `${process.env.BACKEND_URL}/auth/register`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        username: values.username,
+        password: values.confirmPassword,
+        roles: ["doctors", "admin"],
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      redirect: "follow",
+    }
+  );
+  const registeredUserData = await registerRawData.json();
+  console.log(registeredUserData);
+  return registeredUserData;
 };
 
 export const login = async (formData: FormData) => {

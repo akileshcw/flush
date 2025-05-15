@@ -15,6 +15,14 @@ export class AuthService {
     this.userRepository = AppDataSource.getRepository(User);
   }
 
+  private publishEvent(event: string, data: any) {
+    const message = JSON.stringify({ event, data });
+    this.channel.publish("auth.events.fanout", "", Buffer.from(message), {
+      persistent: true,
+    });
+    console.log(`Event published: ${event}`, data);
+  }
+
   async register(
     username: string,
     password: string,
@@ -26,6 +34,7 @@ export class AuthService {
     this.publishEvent("user.registered", {
       id: user.id,
       username,
+      roles,
     });
     return user;
   }
@@ -49,17 +58,12 @@ export class AuthService {
     return token;
   }
 
+  verifyToken(token: string): any {
+    return jwt.verify(token, this.jwtSecret);
+  }
+
   async getUsers(): Promise<User[]> {
     const users = await this.userRepository.find();
     return users;
-  }
-
-  private publishEvent(event: string, data: any) {
-    const message = JSON.stringify({ event, data });
-    this.channel.sendToQueue("auth.events", Buffer.from(message));
-    console.log(`Event published: ${event}`, data);
-  }
-  verifyToken(token: string): any {
-    return jwt.verify(token, this.jwtSecret);
   }
 }

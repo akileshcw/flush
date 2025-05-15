@@ -1,14 +1,28 @@
-import amqp from "amqplib";
+import amqp, { Channel } from "amqplib";
 
-export async function consumeEvents(event: string, channel: amqp.Channel) {
-  channel.assertQueue(event, { durable: true });
-  channel.consume(event, async (msg) => {
-    if (msg !== null) {
-      const content = msg.content.toString();
-      console.log(`Received message from ${event}: ${content}`);
-      channel.ack(msg);
-    }
-  });
+export async function consumeEvents(exchange: string, channel: amqp.Channel) {
+  try {
+    const { queue } = await channel.assertQueue("", {
+      exclusive: true,
+      autoDelete: true,
+    });
+    await channel.bindQueue(queue, exchange, "");
+    channel.consume(queue, async (msg) => {
+      if (msg !== null) {
+        const { event, data } = JSON.parse(msg.content.toString());
+        console.log(
+          `Received message in Notification Service from ${event}: ${data}`
+        );
+        channel.ack(msg);
+      }
+    });
+  } catch (error) {
+    console.log("the erorr in notification consumer is", error);
+  }
+}
+
+export async function connectToExchange(exchange: string, channel: Channel) {
+  await channel.assertExchange(exchange, "fanout", { durable: true });
 }
 
 export async function connectToRabbitMQ() {
@@ -22,12 +36,14 @@ export async function connectToRabbitMQ() {
   while (!connection && retries < maxRetries) {
     try {
       connection = await amqp.connect(rabbitmqUrl);
+      if (!connection) throw new Error("No connection");
       channel = await connection.createChannel();
       await channel.assertQueue("notification.events", { durable: true });
-      consumeEvents("auth.events", channel);
-      consumeEvents("doctor.events", channel);
-      consumeEvents("appointment.events", channel);
-      consumeEvents("patient.events", channel);
+      await connectToExchange("auth.events.fanout", channel);
+      consumeEvents("auth.events.fanout", channel);
+      // consumeEvents("doctor.events", channel);
+      // consumeEvents("appointment.events", channel);
+      // consumeEvents("patient.events", channel);
       console.log("Connected to RabbitMQ");
     } catch (error) {
       console.error("Failed to connect to RabbitMQ, retrying...", error);
