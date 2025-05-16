@@ -24,15 +24,18 @@ import { register } from "@/actions/auth.action";
 import { RegisterFormValues } from "@/types/form.values";
 import { registerFormSchema } from "@/types/form.schema";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  // const router = useRouter();
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
+      email: "",
       username: "",
       password: "",
       confirmPassword: "",
@@ -44,9 +47,30 @@ export function SignupForm({
       form.clearErrors();
       if (values.confirmPassword !== values.password)
         throw new Error("Password don't match");
-      const regiter = await register(values);
+      const { data, error } = await authClient.signUp.email(
+        {
+          email: values.email,
+          password: values.confirmPassword,
+          name: values.username,
+          callbackURL: "/dashboard",
+        },
+        {
+          onRequest: (ctx) => {
+            console.log("the context while request is", ctx);
+            setLoading(true);
+          },
+          onError: (ctx) => {
+            setLoading(false);
+            console.log("the context is", ctx);
+            alert(ctx.error.message);
+            throw new Error("Error while registering");
+          },
+        }
+      );
+      console.log("the data after sign up is", data, error);
+      // const regiter = await register(values);
       toast.success("user registered. proceed to login");
-      router.push("/login");
+      // router.push("/login");
     } catch (error: any) {
       console.error("Form submission error", error);
       if (error.message === "Password don't match") {
@@ -57,6 +81,8 @@ export function SignupForm({
         toast.error("Failed to submit the form. Please try again.");
         return;
       }
+      toast.error("Unable to login");
+      toast.error(error.message);
     }
   }
   return (
@@ -83,6 +109,23 @@ export function SignupForm({
               </div>
             </div>
             <div className="flex flex-col gap-4">
+              <div className="grid gap-2">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="name">Email</FormLabel>
+                      <Input
+                        type="text"
+                        placeholder="a@example.com"
+                        required
+                        {...field}
+                      />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <div className="grid gap-2">
                 <FormField
                   control={form.control}
@@ -142,8 +185,8 @@ export function SignupForm({
                   )}
                 />
               </div>
-              <Button type="submit" className="w-full mt-2">
-                Sign Up
+              <Button type="submit" disabled={loading} className="w-full mt-2">
+                {loading ? "Loading..." : "Sign Up"}
               </Button>
             </div>
             <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">

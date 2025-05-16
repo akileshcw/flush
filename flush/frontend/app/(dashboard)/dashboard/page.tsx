@@ -25,14 +25,16 @@ import FeedbackDialog from "@/components/ui/feedback-dialog";
 import ContactsTable from "@/components/ui/contacts-table";
 import { RiScanLine } from "@remixicon/react";
 import { StatsGrid } from "@/components/ui/stats-grid";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 
 export default async function Page() {
-  const cookieStore = await cookies();
-  const authCookies = cookieStore.get("session");
-  console.log("auth cookies is", authCookies);
-  if (!authCookies) redirect("/login");
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  console.log("the session is", session);
+  if (!session) redirect("/login");
 
   return (
     <SidebarProvider>

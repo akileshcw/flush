@@ -1,48 +1,6 @@
 import amqp, { Channel } from "amqplib";
 import { DoctorService } from "../services/doctorService";
 
-//Consume events from the other services
-export async function consumeEvents(exchange: string, channel: amqp.Channel) {
-  try {
-    const doctorService = new DoctorService(channel);
-    const { queue } = await channel.assertQueue("", {
-      exclusive: true,
-      autoDelete: true,
-    });
-    await channel.bindQueue(queue, exchange, "");
-    await channel.consume(queue, async (msg) => {
-      console.log("message received");
-      if (msg) {
-        try {
-          const { event, data } = JSON.parse(msg.content.toString());
-          console.log("the event data is", event, data);
-          if (event === "user.registered") {
-            const roles = data.roles;
-            console.log("if roles include doctors?", roles.includes("doctors"));
-            if (roles.includes("doctors")) {
-              await doctorService.createDoctor({
-                name: data.username,
-                specialization: "dental",
-                contactInfo: "123456",
-              });
-            }
-          }
-        } catch (error: any) {
-          console.error("Error processing message", error.message);
-          channel.nack(msg, false, false);
-        }
-        channel.ack(msg);
-      }
-    });
-  } catch (error) {
-    console.log("Error while consuming events", error);
-  }
-}
-
-export async function connectToExchange(exchange: string, channel: Channel) {
-  await channel.assertExchange(exchange, "fanout", { durable: true });
-}
-
 export async function connectToRabbitMQ() {
   const rabbitmqUrl = "amqp://guest:guest@rabbitmq:5672";
   let connection;
@@ -56,9 +14,9 @@ export async function connectToRabbitMQ() {
       connection = await amqp.connect(rabbitmqUrl);
       if (!connection) throw new Error("No connection");
       channel = await connection.createChannel();
-      await channel.assertQueue("doctor.events", { durable: true });
-      await connectToExchange("auth.events.fanout", channel);
-      consumeEvents("auth.events.fanout", channel);
+      if (!channel) throw new Error("No channel created!");
+      // consumeEvents("auth.events.fanout", channel);
+      console.log("Connected to Rabbit MQ");
     } catch (error) {
       console.error("Failed to connect to RabbitMQ, retrying...", error);
       retries++;
@@ -71,4 +29,38 @@ export async function connectToRabbitMQ() {
     }
   }
   return channel;
+}
+
+export async function setupConsumer(
+  exchange: string,
+  channel: Channel,
+  service: DoctorService
+): Promise<void> {
+  try {
+    await channel.assertExchange(exchange, "fanout", { durable: true });
+    const { queue } = await channel.assertQueue("", {
+      exclusive: true, // Unique queue per consumer
+      autoDelete: true,
+    });
+    await channel.bindQueue(queue, exchange, "");
+
+    await channel.consume(queue, async (msg) => {
+      console.log("Message received");
+      if (msg) {
+        try {
+          const { event, data } = JSON.parse(msg.content.toString());
+          console.log("Event data:", event, data);
+          await service.handleEvent(event, data); // Delegate to service
+          channel.ack(msg);
+        } catch (error: any) {
+          console.error("Error processing message:", error.message);
+          channel.nack(msg, false, false); // Reject message on error
+        }
+      }
+    });
+    console.log(`Consumer set up for exchange: ${exchange}`);
+  } catch (error) {
+    console.error("Error setting up consumer:", error);
+    throw error;
+  }
 }

@@ -11,11 +11,11 @@ export class NotificationController {
   async sendNotification(req: Request, res: Response, next: NextFunction) {
     try {
       const { userId, message, type } = req.body;
-      const notification = await this.notificationService.sendNotification(
-        userId,
+      const notification = await this.notificationService.sendNotification({
+        receiverId: userId,
         message,
-        type
-      );
+        type,
+      });
       res.status(201).json(notification);
     } catch (error) {
       next(error);

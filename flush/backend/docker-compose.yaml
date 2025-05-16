@@ -63,6 +63,10 @@ services:
       - doctor-service
       - patient-portal-service
       - notification-service
+      # - branch-service
+      # - report-service
+      # - equipment-service
+      # - feedback-service
 
   # Authentication Service
   auth-service:
@@ -125,6 +129,46 @@ services:
       - notification-db
       - rabbitmq
 
+  #Branch Service
+  # branch-service:
+  #   build: ./branch-service
+  #   environment:
+  #     - DATABASE_URL=postgres://branch_user:branch_pass@branch-db:5432/branch_db
+  #     - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+  #   depends_on:
+  #     - branch-db
+  #     - rabbitmq
+
+  #Report Service
+  # report-service:
+  #   build: ./report-service
+  #   environment:
+  #     - DATABASE_URL=postgres://report_user:report_pass@report-db:5432/report_db
+  #     - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+  #   depends_on:
+  #     - report-db
+  #     - rabbitmq
+
+  #Equipment Service
+  # equipment-service:
+  #   build: ./equipment-service
+  #   environment:
+  #     - DATABASE_URL=postgres://equipment_user:equipment_pass@equipment-db:5432/equipment_db
+  #     - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+  #   depends_on:
+  #     - equipment-db
+  #     - rabbitmq
+
+  #Feedback Service
+  # feedback-service:
+  #   build: ./feedback-service
+  #   environment:
+  #     - DATABASE_URL=postgres://feedback_user:feedback_pass@feedback-db:5432/feedback_db
+  #     - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+  #   depends_on:
+  #     - feedback-db
+  #     - rabbitmq
+
   # Databases (one per service)
   auth-db:
     image: postgres:13
@@ -132,6 +176,8 @@ services:
       - POSTGRES_USER=auth_user
       - POSTGRES_PASSWORD=auth_pass
       - POSTGRES_DB=auth_db
+    ports:
+      - "5432:5432"
     volumes:
       - auth_data:/var/lib/postgresql/data
 
@@ -180,6 +226,42 @@ services:
     volumes:
       - notification_data:/var/lib/postgresql/data
 
+  branch-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=branch_user
+      - POSTGRES_PASSWORD=branch_pass
+      - POSTGRES_DB=branch_db
+    volumes:
+      - branch_data:/var/lib/postgresql/data
+
+  report-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=report_user
+      - POSTGRES_PASSWORD=report_pass
+      - POSTGRES_DB=report_db
+    volumes:
+      - report_data:/var/lib/postgresql/data
+
+  equipment-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=equipment_user
+      - POSTGRES_PASSWORD=equipment_pass
+      - POSTGRES_DB=equipment_db
+    volumes:
+      - equipment_data:/var/lib/postgresql/data
+
+  feedback-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=feedback_user
+      - POSTGRES_PASSWORD=feedback_pass
+      - POSTGRES_DB=feedback_db
+    volumes:
+      - feedback_data:/var/lib/postgresql/data
+
   # pgAdmin for database management (optional)
   pgadmin:
     image: dpage/pgadmin4
@@ -202,4 +284,8 @@ volumes:
   doctor_data:
   portal_data:
   notification_data:
+  branch_data:
+  report_data:
+  equipment_data:
+  feedback_data:
   # kong_data:

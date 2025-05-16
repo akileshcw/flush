@@ -1,5 +1,6 @@
 _format_version: "2.1"
 
+#Consumers to track the token
 consumers:
   - username: "auth-service-consumer"
     jwt_secrets:
@@ -8,6 +9,17 @@ consumers:
         secret: "your_jwt_secret"
     acls:
       - group: "doctors"
+      - group: "staffs"
+
+  # - username: "auth-service-consumer-2"
+  #   jwt_secrets:
+  #     - key: "better-auth-frontend"
+  #       algorithm: "ES256"
+  #       secret: "your_jwt_secret"
+  #   acls:
+  #     - group: "doctors"
+
+#List of all services
 services:
   - name: auth-service
     url: http://auth-service:3000
@@ -112,3 +124,79 @@ services:
           hide_groups_header: true
           allow:
             - notifications
+
+  - name: branch-service
+    url: http://branch-service:3006
+    routes:
+      - name: branch-route
+        paths:
+          - /branch
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: "iss"
+          secret_is_base64: false
+          claims_to_verify: ["exp"]
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - branch
+
+  - name: equipment-service
+    url: http://equipment-service:3007
+    routes:
+      - name: equipment-route
+        paths:
+          - /equipment
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: "iss"
+          secret_is_base64: false
+          claims_to_verify: ["exp"]
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - equipment
+
+  - name: report-service
+    url: http://report-service:3008
+    routes:
+      - name: report-route
+        paths:
+          - /report
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: "iss"
+          secret_is_base64: false
+          claims_to_verify: ["exp"]
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - report
+
+  - name: feedback-service
+    url: http://feedback-service:3009
+    routes:
+      - name: feedback-route
+        paths:
+          - /feedback
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: "iss"
+          secret_is_base64: false
+          claims_to_verify: ["exp"]
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - feedback

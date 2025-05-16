@@ -14,7 +14,9 @@
   "description": "",
   "devDependencies": {
     "@types/amqplib": "^0.10.7",
+    "@types/axios": "^0.14.4",
     "@types/body-parser": "^1.19.5",
+    "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.1",
     "@types/node": "^22.15.17",
     "nodemon": "^3.1.10",
@@ -23,9 +25,13 @@
   },
   "dependencies": {
     "amqplib": "^0.10.8",
+    "axios": "^1.9.0",
     "body-parser": "^2.2.0",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "firebase-admin": "^13.4.0",
     "pg": "^8.16.0",
+    "twilio": "^5.6.1",
     "typeorm": "^0.3.23"
   }
 }

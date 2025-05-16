@@ -16,7 +16,6 @@ export class DoctorService {
     if (!data.name || !data.specialization || !data.contactInfo) {
       throw new Error("Name,specialization and contactInfo are required");
     }
-    console.log("the data in doctor service before creating doctor is", data);
     const doctor = this.doctorRepository.create(data);
     await this.doctorRepository.save(doctor);
     this.publishEvent("doctor.created", doctor);
@@ -31,9 +30,29 @@ export class DoctorService {
   }
 
   private publishEvent(event: string, data: any) {
-    this.channel.sendToQueue(
-      "doctor.events",
+    this.channel.publish(
+      "doctor.events.fanout",
+      "",
       Buffer.from(JSON.stringify({ event, data }))
     );
+  }
+
+  async handleEvent(event: string, data: any) {
+    switch (event) {
+      case "user.registered":
+        if (data.roles.includes("admin") || data.roles.include("doctors")) {
+          const dataFromAuth = {
+            name: data.username,
+            specialization: "dental",
+            contactInfo: "123456789",
+          };
+          const doctor = this.createDoctor(dataFromAuth);
+          this.publishEvent("doctor.created", doctor);
+        }
+        break;
+
+      default:
+        console.log("No matching action to excute based on the received event");
+    }
   }
 }
