@@ -11,10 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { authClient } from "@/lib/auth-client";
 
 import { RiSettingsLine, RiTeamLine, RiLogoutBoxLine } from "@remixicon/react";
+import { useRouter } from "next/navigation";
 
 export default function UserDropdown() {
+  const router = useRouter();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -61,7 +64,19 @@ export default function UserDropdown() {
             className="opacity-60"
             aria-hidden="true"
           />
-          <span onClick={signOut}>Sign out</span>
+          <span
+            onClick={async () => {
+              await authClient.signOut({
+                fetchOptions: {
+                  onSuccess: () => {
+                    router.push("/login");
+                  },
+                },
+              });
+            }}
+          >
+            Sign out
+          </span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

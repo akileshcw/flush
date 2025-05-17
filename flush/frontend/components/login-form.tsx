@@ -20,11 +20,13 @@ import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Form, FormField, FormItem, FormLabel } from "./ui/form";
+import { useRouter } from "next/navigation";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -36,24 +38,26 @@ export function LoginForm({
 
   async function onSubmit(values: LoginFormValues) {
     try {
+      console.log("the values is", values);
       form.clearErrors();
-      if (values.confirmPassword !== values.password)
-        throw new Error("Password don't match");
       const { data, error } = await authClient.signIn.email(
         {
           email: values.email,
-          password: values.confirmPassword,
-          callbackURL: "/dashboard",
+          password: values.password,
         },
         {
           onRequest: (ctx) => {
             setLoading(true);
           },
           onSuccess: (ctx) => {
+            console.log("the context on success is", ctx);
             setLoading(false);
+            router.push("/dashboard");
           },
           onError: (ctx) => {
             alert(ctx.error.message);
+            toast.error(`Cannot Login. ${ctx.error.message}`);
+            throw new Error(ctx.error.message);
           },
         }
       );
@@ -67,7 +71,7 @@ export function LoginForm({
           message: "Passwords don't match",
         });
         form.setError("password", { message: "Password don't match" });
-        toast.error("Failed to submit the form. Please try again.");
+        toast.error(error.message);
         return;
       }
     }
@@ -83,7 +87,7 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form action={login}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2">
                   <FormField

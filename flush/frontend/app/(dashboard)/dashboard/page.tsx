@@ -33,6 +33,12 @@ export default async function Page() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+  const tokenResponse = await fetch("http://localhost:3000/api/auth/token", {
+    headers: {
+      Authorization: `Bearer ${session?.session.token}`,
+    },
+  });
+  console.log("the token response is", tokenResponse);
   console.log("the session is", session);
   if (!session) redirect("/login");
 

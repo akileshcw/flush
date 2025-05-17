@@ -29,7 +29,7 @@ export class AuthService {
     roles: string[]
   ): Promise<User> {
     const password_hash = await bcrypt.hash(password, 10);
-    const user = this.userRepository.create({ username, password_hash, roles });
+    const user = this.userRepository.create({ username, roles });
     await this.userRepository.save(user);
     this.publishEvent("user.registered", {
       id: user.id,
@@ -43,7 +43,7 @@ export class AuthService {
     const user = await this.userRepository.findOneBy({ username });
     console.log("the username in auth service is", user);
     if (!user) throw new Error("User not found");
-    const isValid = await bcrypt.compare(password, user.password_hash);
+    const isValid = await bcrypt.compare(password, password);
     if (!isValid) throw new Error("Invalid password");
     console.log("the user roles is", user.roles);
     const token = jwt.sign(

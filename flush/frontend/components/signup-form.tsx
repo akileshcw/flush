@@ -30,6 +30,7 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   // const router = useRouter();
   const form = useForm<RegisterFormValues>({
@@ -56,12 +57,20 @@ export function SignupForm({
         },
         {
           onRequest: (ctx) => {
-            console.log("the context while request is", ctx);
+            console.log("the request context is");
+            console.log(ctx);
             setLoading(true);
+          },
+          onSuccess: async (ctx) => {
+            await authClient.admin.setRole({
+              userId: ctx.data.user.userId,
+              role: ["admin", "user"],
+            });
+            setLoading(false);
+            router.replace("/dashboard");
           },
           onError: (ctx) => {
             setLoading(false);
-            console.log("the context is", ctx);
             alert(ctx.error.message);
             throw new Error("Error while registering");
           },

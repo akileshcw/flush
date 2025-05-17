@@ -2,25 +2,28 @@ import { Entity, PrimaryColumn, Column, OneToMany, ManyToOne } from "typeorm";
 
 @Entity()
 export class User {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: "text" })
   id!: string;
 
-  @Column()
+  @Column("text")
+  name!: string;
+
+  @Column({ type: "text" })
   username?: string;
 
-  @Column()
-  password_hash!: string; // Store the hashed password, not the plain text
+  @Column("text", { unique: true })
+  phoneNumber!: string;
 
   @Column("text", { array: true })
-  roles?: string[]; // e.g., 'admin', 'doctor', 'staff', 'patient'
+  roles!: string[]; // e.g., 'admin', 'doctor', 'staff', 'patient'
 
-  @Column({ unique: true, nullable: true }) // Make email optional and unique
+  @Column("text", { unique: true, nullable: true }) // Make email optional and unique
   email?: string;
 
   @Column({ default: false })
   emailVerified: boolean = false;
 
-  @Column({ nullable: true }) // Make image optional
+  @Column("text", { nullable: true }) // Make image optional
   image?: string;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
@@ -46,22 +49,22 @@ export class User {
 
 @Entity()
 export class Session {
-  @PrimaryColumn()
+  @PrimaryColumn("text")
   id!: string;
 
-  @Column()
+  @Column("text")
   userId!: string; // Foreign key to User
 
-  @Column()
+  @Column("text")
   token!: string;
 
   @Column({ type: "timestamp" })
   expiresAt!: Date;
 
-  @Column({ nullable: true })
+  @Column("text", { nullable: true })
   ipAddress?: string;
 
-  @Column({ nullable: true })
+  @Column("text", { nullable: true })
   userAgent?: string;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
@@ -82,22 +85,22 @@ export class Session {
 
 @Entity()
 export class Account {
-  @PrimaryColumn()
+  @PrimaryColumn("text")
   id!: string;
 
-  @Column()
+  @Column("text")
   userId!: string; // Foreign key to User
 
-  @Column()
+  @Column("text")
   accountId!: string;
 
-  @Column()
+  @Column("text")
   providerId!: string;
 
-  @Column({ nullable: true })
+  @Column("text", { nullable: true })
   accessToken?: string;
 
-  @Column({ nullable: true })
+  @Column("text", { nullable: true })
   refreshToken?: string;
 
   @Column({ type: "timestamp", nullable: true })
@@ -106,13 +109,13 @@ export class Account {
   @Column({ type: "timestamp", nullable: true })
   refreshTokenExpiresAt?: Date;
 
-  @Column({ nullable: true })
+  @Column("text", { nullable: true })
   scope?: string;
 
-  @Column({ nullable: true })
+  @Column("text", { nullable: true })
   idToken?: string;
 
-  @Column({ nullable: true })
+  @Column("text", { nullable: true })
   password?: string; //  Important:  This should ONLY be used for local auth (e.g., email/password).  NEVER store passwords for third-party providers.
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
@@ -132,20 +135,17 @@ export class Account {
 
 @Entity()
 export class Verification {
-  @PrimaryColumn()
+  @PrimaryColumn("text")
   id!: string;
 
-  @Column()
+  @Column("text")
   identifier!: string;
 
-  @Column()
+  @Column("text")
   value!: string;
 
   @Column({ type: "timestamp" })
   expiresAt!: Date;
-
-  @Column({ nullable: true })
-  userId?: string;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt!: Date;
@@ -159,4 +159,19 @@ export class Verification {
 
   @ManyToOne(() => User, (user) => user.verifications)
   user?: User;
+}
+
+@Entity()
+export class Jwks {
+  @PrimaryColumn("text")
+  id!: string;
+
+  @Column("text")
+  publicKey!: string;
+
+  @Column("text", { default: "your_jwt_secret" })
+  privateKey!: string;
+
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  createdAt!: Date;
 }
