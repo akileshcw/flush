@@ -1,7 +1,7 @@
 "use client";
 import type React from "react";
 import { GalleryVerticalEnd } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,11 +20,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { register } from "@/actions/auth.action";
+import { nextSignIn, register } from "@/actions/auth.action";
 import { RegisterFormValues } from "@/types/form.values";
 import { registerFormSchema } from "@/types/form.schema";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { signIn } from "@/auth";
+import { useSession } from "next-auth/react";
 
 export function SignupForm({
   className,
@@ -32,7 +34,13 @@ export function SignupForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  // const router = useRouter();
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -48,36 +56,12 @@ export function SignupForm({
       form.clearErrors();
       if (values.confirmPassword !== values.password)
         throw new Error("Password don't match");
-      const { data, error } = await authClient.signUp.email(
-        {
-          email: values.email,
-          password: values.confirmPassword,
-          name: values.username,
-          callbackURL: "/dashboard",
-        },
-        {
-          onRequest: (ctx) => {
-            console.log("the request context is");
-            console.log(ctx);
-            setLoading(true);
-          },
-          onSuccess: async (ctx) => {
-            await authClient.admin.setRole({
-              userId: ctx.data.user.userId,
-              role: ["admin", "user"],
-            });
-            setLoading(false);
-            router.replace("/dashboard");
-          },
-          onError: (ctx) => {
-            setLoading(false);
-            alert(ctx.error.message);
-            throw new Error("Error while registering");
-          },
-        }
-      );
-      console.log("the data after sign up is", data, error);
-      // const regiter = await register(values);
+
+      await nextSignIn({
+        username: values.username,
+        password: values.password,
+      });
+
       toast.success("user registered. proceed to login");
       // router.push("/login");
     } catch (error: any) {

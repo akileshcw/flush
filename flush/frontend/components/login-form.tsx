@@ -11,60 +11,54 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { login } from "@/actions/auth.action";
+import { login, nextSignIn } from "@/actions/auth.action";
 import { LoginFormValues } from "@/types/form.values";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginFormSchema } from "@/types/form.schema";
 import { authClient } from "@/lib/auth-client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Form, FormField, FormItem, FormLabel } from "./ui/form";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
   const [loading, setLoading] = useState(false);
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
 
   async function onSubmit(values: LoginFormValues) {
     try {
+      form.clearErrors();
+      setLoading(true);
       console.log("the values is", values);
       form.clearErrors();
-      const { data, error } = await authClient.signIn.email(
-        {
-          email: values.email,
-          password: values.password,
-        },
-        {
-          onRequest: (ctx) => {
-            setLoading(true);
-          },
-          onSuccess: (ctx) => {
-            console.log("the context on success is", ctx);
-            setLoading(false);
-            router.push("/dashboard");
-          },
-          onError: (ctx) => {
-            alert(ctx.error.message);
-            toast.error(`Cannot Login. ${ctx.error.message}`);
-            throw new Error(ctx.error.message);
-          },
-        }
-      );
+      await nextSignIn({
+        username: values.username,
+        password: values.password,
+      });
       // const regiter = await register(values);
       toast.success("Logged in");
       // router.push("/login");
     } catch (error: any) {
+      setLoading(false);
       console.error("Form submission error", error);
       if (error.message === "Password don't match") {
         form.setError("confirmPassword", {
@@ -74,6 +68,8 @@ export function LoginForm({
         toast.error(error.message);
         return;
       }
+    } finally {
+      setLoading(false);
     }
   }
   return (
@@ -92,10 +88,10 @@ export function LoginForm({
                 <div className="grid gap-2">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor="email">Email</FormLabel>
+                        <FormLabel htmlFor="email">Username</FormLabel>
                         <Input
                           type="text"
                           placeholder="johnDoe"
@@ -131,9 +127,8 @@ export function LoginForm({
                     )}
                   />
                 </div>
-
-                <Button type="submit" className="w-full">
-                  Login
+                <Button type="submit" className="w-full z-99999">
+                  {loading ? "Loading..." : "Login"}
                 </Button>
                 <Button
                   variant="outline"

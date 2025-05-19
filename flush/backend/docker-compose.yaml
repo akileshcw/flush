@@ -76,6 +76,7 @@ services:
       - /usr/src/app/node_modules
     environment:
       - DATABASE_URL=postgres://auth_user:auth_pass@auth-db:5432/auth_db
+      - BETTER_AUTH_SECRET=your_jwt_secret
     depends_on:
       - auth-db
 

@@ -29,21 +29,37 @@ export class AuthService {
     roles: string[]
   ): Promise<User> {
     const password_hash = await bcrypt.hash(password, 10);
-    const user = this.userRepository.create({ username, roles });
+    const user = this.userRepository.create({
+      username,
+      password: password_hash,
+      roles,
+    });
     await this.userRepository.save(user);
+    const token = jwt.sign(
+      { id: user.id, groups: user.roles, iss: "auth-service", expiresIn: "1h" },
+      this.jwtSecret,
+      { expiresIn: "1h" }
+    );
     this.publishEvent("user.registered", {
       id: user.id,
       username,
       roles,
+      token,
     });
-    return user;
+    const newUser = { ...user, token: token };
+    return newUser;
   }
 
-  async login(username: string, password: string): Promise<string> {
-    const user = await this.userRepository.findOneBy({ username });
-    console.log("the username in auth service is", user);
-    if (!user) throw new Error("User not found");
-    const isValid = await bcrypt.compare(password, password);
+  async login(
+    username: string,
+    password: string
+  ): Promise<{ user: User; token: string }> {
+    let user = await this.userRepository.findOneBy({ username });
+    console.log("the user found using findone", user);
+    if (!user) {
+      user = await this.register(username, password, ["user"]);
+    }
+    const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) throw new Error("Invalid password");
     console.log("the user roles is", user.roles);
     const token = jwt.sign(
@@ -55,7 +71,14 @@ export class AuthService {
     );
     console.log("the token contains the group", jwt.decode(token));
     this.publishEvent("user.logged_in", { id: user.id, username });
-    return token;
+    console.log("the object returned is", { user, token });
+    return { user, token };
+  }
+
+  async logout(token: string): Promise<void> {
+    const decoded = jwt.verify(token, this.jwtSecret);
+    if (!decoded) throw new Error("Invalid token");
+    this.publishEvent("user.logged_out", { id: decoded });
   }
 
   verifyToken(token: string): any {

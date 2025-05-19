@@ -22,8 +22,19 @@ export class AuthController {
     try {
       const { username, password } = req.body;
       console.log("the username and password is", username, password);
-      const token = await this.authService.login(username, password);
-      res.json({ token });
+      const userDetails = await this.authService.login(username, password);
+      console.log("the user details is", userDetails);
+      res.json(userDetails);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async logout(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { token } = req.body;
+      await this.authService.logout(token);
+      res.status(204).send();
     } catch (error) {
       next(error);
     }

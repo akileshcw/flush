@@ -1,5 +1,6 @@
 import { DataSource } from "typeorm";
-import { Account, Jwks, Session, User, Verification } from "../models/user";
+import { User } from "../models/user";
+// import { Account, Jwks, Session, User, Verification } from "../models/user";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -8,6 +9,6 @@ export const AppDataSource = new DataSource({
   username: "auth_user",
   password: "auth_pass",
   database: "auth_db",
-  entities: [User, Session, Account, Verification, Jwks],
+  entities: [User],
   synchronize: true, // Set to false in production
 });

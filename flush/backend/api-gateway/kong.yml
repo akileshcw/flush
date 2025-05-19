@@ -5,11 +5,14 @@ consumers:
   - username: "auth-service-consumer"
     jwt_secrets:
       - key: "auth-service"
-        algorithm: "HS256"
-        secret: "your_jwt_secret"
+        algorithm: "HS512"
+        secret: "qlixR0TRi0oR5FpNR3rA750lD8kmTL6el0isIfWzGp9IorYJPd7R_zkIJ5A0rCj49HE5AlbqIrFS-2ejJ20JDw"
     acls:
-      - group: "doctors"
-      - group: "staffs"
+      - group: "doctor"
+      - group: "staff"
+      - group: "patient"
+      - group: "admin"
+      - group: "user"
 
   # - username: "auth-service-consumer-2"
   #   jwt_secrets:
@@ -47,7 +50,10 @@ services:
         config:
           hide_groups_header: true
           allow:
-            - patients
+            - doctor
+            - staff
+            - patient
+            - admin
 
   - name: appointment-service
     url: http://appointment-service:3002
@@ -66,7 +72,11 @@ services:
         config:
           hide_groups_header: true
           allow:
-            - appointments
+            - user
+            - patient
+            - doctor
+            - staff
+            - admin
 
   - name: doctor-service
     url: http://doctor-service:3003
@@ -85,7 +95,8 @@ services:
         config:
           hide_groups_header: true
           allow:
-            - doctors
+            - doctor
+            - admin
 
   - name: patient-portal-service
     url: http://patient-portal-service:3004
@@ -104,7 +115,7 @@ services:
         config:
           hide_groups_header: true
           allow:
-            - patientPortal
+            - patient
 
   - name: notification-service
     url: http://notification-service:3005
@@ -123,7 +134,9 @@ services:
         config:
           hide_groups_header: true
           allow:
-            - notifications
+            - doctor
+            - admin
+            - staff
 
   - name: branch-service
     url: http://branch-service:3006
@@ -142,7 +155,7 @@ services:
         config:
           hide_groups_header: true
           allow:
-            - branch
+            - admin
 
   - name: equipment-service
     url: http://equipment-service:3007
@@ -161,7 +174,9 @@ services:
         config:
           hide_groups_header: true
           allow:
-            - equipment
+            - admin
+            - doctor
+            - staff
 
   - name: report-service
     url: http://report-service:3008
@@ -180,7 +195,10 @@ services:
         config:
           hide_groups_header: true
           allow:
-            - report
+            - patient
+            - doctor
+            - admin
+            - staff
 
   - name: feedback-service
     url: http://feedback-service:3009
@@ -199,4 +217,7 @@ services:
         config:
           hide_groups_header: true
           allow:
-            - feedback
+            - admin
+            - doctor
+            - staff
+            - patient

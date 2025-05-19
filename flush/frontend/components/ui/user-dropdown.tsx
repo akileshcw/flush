@@ -1,5 +1,4 @@
 "use client";
-import { signOut } from "@/actions/auth.action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,13 +10,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { authClient } from "@/lib/auth-client";
+import { signOut, useSession } from "next-auth/react";
 
 import { RiSettingsLine, RiTeamLine, RiLogoutBoxLine } from "@remixicon/react";
 import { useRouter } from "next/navigation";
+import { nextSignOut } from "@/actions/auth.action";
 
 export default function UserDropdown() {
+  const { data: session } = useSession();
   const router = useRouter();
+  console.log("the session is", session);
+  if (!session || !session.user) router.push("/login");
+  const name = session?.user?.name;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -36,15 +40,17 @@ export default function UserDropdown() {
       <DropdownMenuContent className="max-w-64" align="end">
         <DropdownMenuLabel className="flex min-w-0 flex-col">
           <span className="truncate text-sm font-medium text-foreground">
-            Keith Kennedy
+            {name?.trim().toLocaleUpperCase()}
           </span>
           <span className="truncate text-xs font-normal text-muted-foreground">
-            k.kennedy@originui.com
+            {session?.user?.email ?? "No email provided"}
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => router.push("/dashboard/account-settings")}
+          >
             <RiSettingsLine
               size={16}
               className="opacity-60"
@@ -58,25 +64,13 @@ export default function UserDropdown() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => nextSignOut()}>
           <RiLogoutBoxLine
             size={16}
             className="opacity-60"
             aria-hidden="true"
           />
-          <span
-            onClick={async () => {
-              await authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    router.push("/login");
-                  },
-                },
-              });
-            }}
-          >
-            Sign out
-          </span>
+          <span>Sign out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

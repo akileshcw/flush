@@ -1,8 +1,17 @@
 "use server";
 
+import { signIn, signOut } from "@/auth";
 import { RegisterFormValues } from "@/types/form.values";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+
+export const nextSignIn = async (credentials: {
+  username: string;
+  password: string;
+}) => {
+  console.log("the credentials is", credentials);
+  await signIn("credentials", credentials);
+};
 
 export const register = async (values: RegisterFormValues) => {
   console.log("the values received are", values);
@@ -52,7 +61,12 @@ export const login = async (formData: FormData) => {
   redirect("/dashboard");
 };
 
-export const signOut = async () => {
+export const signOutExpress = async () => {
   (await cookies()).delete("session");
+  redirect("/login");
+};
+
+export const nextSignOut = async () => {
+  await signOut({ redirect: true, redirectTo: "/login" });
   redirect("/login");
 };

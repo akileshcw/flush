@@ -25,22 +25,17 @@ import FeedbackDialog from "@/components/ui/feedback-dialog";
 import ContactsTable from "@/components/ui/contacts-table";
 import { RiScanLine } from "@remixicon/react";
 import { StatsGrid } from "@/components/ui/stats-grid";
-import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { cookies } from "next/headers";
 
 export default async function Page() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  const tokenResponse = await fetch("http://localhost:3000/api/auth/token", {
-    headers: {
-      Authorization: `Bearer ${session?.session.token}`,
-    },
-  });
-  console.log("the token response is", tokenResponse);
+  const session = await auth();
   console.log("the session is", session);
   if (!session) redirect("/login");
+  const cookieStore = await cookies();
+  const token = await cookieStore.get("authjs.session-token");
+  console.log("the token is", token);
 
   return (
     <SidebarProvider>
