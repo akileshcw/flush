@@ -5,9 +5,8 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node ./src/dist/app.js",
-    "dev": "nodemon src/app.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm run build && node dist/app.js",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/app.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +15,7 @@
     "@auth/express": "^0.10.1",
     "amqplib": "^0.10.8",
     "bcryptjs": "^3.0.2",
+    "better-auth": "^1.2.8",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",

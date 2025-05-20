@@ -4,7 +4,6 @@ import { jwt } from "better-auth/plugins";
 
 export const authClient = createAuthClient({
   baseURL: "http://localhost:8000/auth/api/auth",
-  basePath: "/",
   plugins: [
     jwt({
       jwt: {

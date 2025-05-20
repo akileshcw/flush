@@ -10,18 +10,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut, useSession } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 
 import { RiSettingsLine, RiTeamLine, RiLogoutBoxLine } from "@remixicon/react";
 import { useRouter } from "next/navigation";
-import { nextSignOut } from "@/actions/auth.action";
+
+//Next-auth Implementation imports
+// import { signOut, useSession } from "next-auth/react";
+// import { nextSignOut } from "@/actions/auth.action";
 
 export default function UserDropdown() {
-  const { data: session } = useSession();
+  //Next-auth Implementation
+  // const { data: session } = useSession();
+  // console.log("the session is", session);
+  // if (!session || !session.user) router.push("/login");
+  // const name = session?.user?.name;
+
+  const session = authClient.useSession();
+  const name = session?.data?.user.name;
+  const email = session?.data?.user.email;
+
   const router = useRouter();
-  console.log("the session is", session);
-  if (!session || !session.user) router.push("/login");
-  const name = session?.user?.name;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -43,7 +52,7 @@ export default function UserDropdown() {
             {name?.trim().toLocaleUpperCase()}
           </span>
           <span className="truncate text-xs font-normal text-muted-foreground">
-            {session?.user?.email ?? "No email provided"}
+            {email ?? "No email provided"}
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -64,7 +73,19 @@ export default function UserDropdown() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => nextSignOut()}>
+        <DropdownMenuItem
+          //Next-auth Implementation
+          // onClick={() => nextSignOut()}
+          onClick={async () => {
+            await authClient.signOut({
+              fetchOptions: {
+                onSuccess: () => {
+                  router.push("/login");
+                },
+              },
+            });
+          }}
+        >
           <RiLogoutBoxLine
             size={16}
             className="opacity-60"

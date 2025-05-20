@@ -11,7 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { login, nextSignIn } from "@/actions/auth.action";
+
+// import { login, nextSignIn } from "@/actions/auth.action";
 import { LoginFormValues } from "@/types/form.values";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,13 +29,15 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
-  const { data: session } = useSession();
 
-  useEffect(() => {
-    if (session) {
-      router.push("/dashboard");
-    }
-  }, [session, router]);
+  //Next-auth implementation
+  // const { data: session } = useSession();
+  // useEffect(() => {
+  //   if (session) {
+  //     router.push("/dashboard");
+  //   }
+  // }, [session, router]);
+
   const [loading, setLoading] = useState(false);
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -50,12 +53,31 @@ export function LoginForm({
       setLoading(true);
       console.log("the values is", values);
       form.clearErrors();
-      await nextSignIn({
-        username: values.username,
-        password: values.password,
-      });
+
+      //Better-auth implementation
+      const { data, error } = await authClient.signIn.email(
+        {
+          email: values.username,
+          password: values.password,
+          callbackURL: "/dashboard",
+        },
+        {
+          onError: (error) => {
+            console.error("Error signing in", error);
+            toast.error(error.error.message);
+          },
+          onSuccess: () => {
+            router.push("/dashboard");
+          },
+        }
+      );
+
+      //Next-auth implementation
+      // await nextSignIn({
+      //   username: values.username,
+      //   password: values.password,
+      // });
       // const regiter = await register(values);
-      toast.success("Logged in");
       // router.push("/login");
     } catch (error: any) {
       setLoading(false);

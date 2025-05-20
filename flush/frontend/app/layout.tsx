@@ -2,8 +2,10 @@ import { Inter } from "next/font/google";
 
 import "./globals.css";
 import { Toaster } from "sonner";
-import { SessionProvider } from "next-auth/react";
-import { auth } from "@/auth";
+
+//next-auth imports
+// import { SessionProvider } from "next-auth/react";
+// import { auth } from "@/auth";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -15,15 +17,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
+  //Next-auth Implementation
+  // const session = await auth();
   return (
     <html lang="en" className="dark scheme-only-dark">
-      <SessionProvider session={session}>
-        <body className={`${fontSans.variable} font-sans antialiased`}>
-          {children}
-          <Toaster richColors />
-        </body>
-      </SessionProvider>
+      {/* <SessionProvider session={session}> */}
+      <body className={`${fontSans.variable} font-sans antialiased`}>
+        {children}
+        <Toaster richColors />
+      </body>
+      {/* </SessionProvider> */}
     </html>
   );
 }

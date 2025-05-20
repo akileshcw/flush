@@ -26,16 +26,28 @@ import ContactsTable from "@/components/ui/contacts-table";
 import { RiScanLine } from "@remixicon/react";
 import { StatsGrid } from "@/components/ui/stats-grid";
 import { redirect } from "next/navigation";
+
+//Better-Auth Implementation Import
+import { cookies, headers } from "next/headers";
 import { auth } from "@/auth";
-import { cookies } from "next/headers";
+import { authClient } from "@/lib/auth-client";
+
+//Next-auth Implementation Import
+// import { auth } from "@/auth";
 
 export default async function Page() {
-  const session = await auth();
-  console.log("the session is", session);
-  if (!session) redirect("/login");
-  const cookieStore = await cookies();
-  const token = await cookieStore.get("authjs.session-token");
-  console.log("the token is", token);
+  const session = await authClient.getSession({
+    fetchOptions: {
+      baseURL: "http://localhost:8000/auth/api/auth",
+      headers: await headers(),
+      onSuccess: (ctx) => {
+        const jwt = ctx.response.headers.get("set-auth-jwt");
+      },
+    },
+  });
+  !session && redirect("/sign-in");
+  if (!session.data) redirect("/dashboard/onboarding");
+  const user = session.data.user;
 
   return (
     <SidebarProvider>
@@ -58,7 +70,7 @@ export default async function Page() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Contacts</BreadcrumbPage>
+                  <BreadcrumbPage>Home</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -72,7 +84,7 @@ export default async function Page() {
           {/* Page intro */}
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-1">
-              <h1 className="text-2xl font-semibold">Oilà, Larry!</h1>
+              <h1 className="text-2xl font-semibold">{user?.name}</h1>
               <p className="text-sm text-muted-foreground">
                 Here&rsquo;s an overview of your contacts. Manage or create new
                 ones with ease!

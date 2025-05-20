@@ -5,22 +5,14 @@ consumers:
   - username: "auth-service-consumer"
     jwt_secrets:
       - key: "auth-service"
-        algorithm: "HS512"
-        secret: "qlixR0TRi0oR5FpNR3rA750lD8kmTL6el0isIfWzGp9IorYJPd7R_zkIJ5A0rCj49HE5AlbqIrFS-2ejJ20JDw"
+        algorithm: "EdDSA"
+        secret: "1AcePAnv4jNy3v62fotGEGGGc84JHisV"
     acls:
       - group: "doctor"
       - group: "staff"
       - group: "patient"
       - group: "admin"
       - group: "user"
-
-  # - username: "auth-service-consumer-2"
-  #   jwt_secrets:
-  #     - key: "better-auth-frontend"
-  #       algorithm: "ES256"
-  #       secret: "your_jwt_secret"
-  #   acls:
-  #     - group: "doctors"
 
 #List of all services
 services:
@@ -46,6 +38,16 @@ services:
           key_claim_name: "iss"
           secret_is_base64: false
           claims_to_verify: ["exp"]
+
+      # OpenId connect plugin for future implementation
+      # - name: openid-connect
+      #   config:
+      #     discovery: true
+      #     issuer: "http://auth-service:3000"
+      #     client_id: "auth-service-consumer"
+      #     client_secret: "qlixR0TRi0oR5FpNR3rA750lD8kmTL6el0isIfWzGp9IorYJPd7R_zkIJ5A0rCj49HE5AlbqIrFS-2ejJ20JDw"
+      #     redirect_uri: "http://localhost:8000/auth/callback"
+      #     scopes: ["openid", "profile", "email", "name", "username", "groups"]
       - name: acl
         config:
           hide_groups_header: true

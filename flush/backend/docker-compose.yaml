@@ -78,7 +78,8 @@ services:
       - DATABASE_URL=postgres://auth_user:auth_pass@auth-db:5432/auth_db
       - BETTER_AUTH_SECRET=your_jwt_secret
     depends_on:
-      - auth-db
+      auth-db:
+        condition: service_healthy
 
   # Patient Service
   patient-service:
@@ -181,6 +182,12 @@ services:
       - "5432:5432"
     volumes:
       - auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   patient-db:
     image: postgres:13

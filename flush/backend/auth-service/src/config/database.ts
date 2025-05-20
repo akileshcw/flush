@@ -1,14 +1,12 @@
 import { DataSource } from "typeorm";
-import { User } from "../models/user";
-// import { Account, Jwks, Session, User, Verification } from "../models/user";
+import { Account, Jwks, Session, User, Verification } from "../models/user";
 
 export const AppDataSource = new DataSource({
-  type: "postgres",
-  host: "auth-db",
-  port: 5432,
+  type: "postgres", // or "mysql", "sqlite", etc. depending on your DB
   username: "auth_user",
   password: "auth_pass",
   database: "auth_db",
-  entities: [User],
+  host: "auth-db",
+  entities: [User, Session, Account, Verification, Jwks],
   synchronize: true, // Set to false in production
 });
